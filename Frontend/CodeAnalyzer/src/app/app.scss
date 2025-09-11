@@ -1,0 +1,80 @@
+/* Set full-page background */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #ffffff; /* light gray background */
+}
+
+/* Toolbar styling */
+.navbar {
+  position: sticky;      /* stays on top when scrolling */
+  top: 0;
+  z-index: 1000;
+  color: white;
+  background-color: #0B0570;
+}
+
+.content {
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+  min-height: calc(100vh - 90px);
+  // min-height: calc(100vh - 64px);
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column; /* stack vertically on small screens */
+  }
+}
+
+.inputBlock, .responseBlock {
+  flex: 1;             /* equal width columns */
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+textarea {
+  width:95%;
+  max-width: 100%;
+  padding: 10px;
+  font-family: monospace;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #0B0570;
+  color: white;
+  float: right;
+}
+
+.loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255,255,255,0.6);
+  z-index: 1000;
+}
+
+/* Push menu items to right */
+.spacer {
+  flex: 1 1 auto;
+}
+
+.result-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-align: left;
+}
