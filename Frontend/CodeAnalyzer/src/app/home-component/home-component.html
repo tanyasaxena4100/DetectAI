@@ -1,0 +1,33 @@
+<div>
+    <mat-toolbar color="primary" class="navbar">
+        <div class="app-header">
+            <img src="assets/detectai-logo.png" class="logo" />
+            <h1 class="title">DetectAI</h1>
+        </div>
+    </mat-toolbar>
+
+    <div class="content">
+        <div class="tile-container">
+            <!-- <div class="tile" (click)="goTo('bug-detection')"> -->
+            <div class="tile" (click)="navigateTo(1)">
+                <h2>🐞 Bug Detection</h2>
+                <p>Find logical errors and runtime issues.</p>
+            </div>
+            <!-- <div class="tile" (click)="goTo('optimization')"> -->
+            <div class="tile" (click)="navigateTo(2)">
+                <h2>⚡ Code Optimization</h2>
+                <p>Improve efficiency and performance.</p>
+            </div>
+            <!-- <div class="tile" (click)="goTo('summarization')"> -->
+            <div class="tile" (click)="navigateTo(3)">
+                <h2>🧩 Code Summarization</h2>
+                <p>Get quick explanations of complex code.</p>
+            </div>
+            <!-- <div class="tile" (click)="goTo('security-scan')"> -->
+            <div class="tile" (click)="navigateTo(4)">
+                <h2>🔒 Security Scan</h2>
+                <p>Identify vulnerabilities and unsafe patterns.</p>
+            </div>
+        </div>
+    </div>
+</div>

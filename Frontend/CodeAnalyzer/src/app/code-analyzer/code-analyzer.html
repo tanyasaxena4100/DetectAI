@@ -1,0 +1,86 @@
+<div>
+  <mat-toolbar color="primary" class="navbar">
+    <div class="app-header">
+      <img src="assets/detectai-logo.png" class="logo" (click)="goHome()"/>
+      <h1 class="title" (click)="goHome()">Code Analyzer</h1>
+      <!-- <span style="font-size: 14px;">Attach. Analyze. Improve.</span> -->
+    </div>
+    <!-- <span class="logo">DetectAI</span>
+    <span class="spacer"></span> -->
+  </mat-toolbar>
+
+  <div class = "content">
+    <div class="inputBlock">
+      <h4>Upload your code and let DetectAI spot the bugs instantly.</h4>
+      <div class="codeBlock"> 
+        <textarea #codeBox rows="22" cols="80" placeholder="Paste your code"></textarea>
+        <button class="codeButton" (click)="analyzeCode(codeBox.value)">Analyze Code</button>
+        <button class="codeButton" style="margin-right: 0.3rem;" (click)="reset()">Reset</button>
+      </div>
+      <br>
+      <div class="file-upload">
+        <h4 style="margin-top:25px;"> Upload File </h4>
+        <input type="file" (change)="onFileSelected($event)" id="fileInput" hidden />
+        <label for="fileInput" class="attach-btn">📎 Attach file</label>
+        <span class="file-name">{{ selectedFileName || 'No file chosen' }}</span>
+        <button style="margin-top: 3rem;" class="fileButton" (click)="uploadFileToAnalyze()">Analyze File</button>
+      </div>
+    </div>
+
+    <div class="responseBlock">
+      <h4>Response</h4>
+      <div class="loader" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Analyzing...</p>
+      </div>
+
+      @if (invalidInput) {
+        <div class="warning">{{ backendResponse.errorMsg }}</div>
+      }
+
+      @if (responseReceived) {
+            <div class="analysis-container">
+              <!-- 1️⃣ Errors Section -->
+              <h4 (click)="toggleSection('errors')" style="cursor: pointer;">
+                Issues & Fixes
+              </h4>
+                <ul>
+                  @for (err of analysisResult.errors; track $index) {
+                    <!-- <li><strong>Line {{ err.line }}:</strong> {{ err.description }}</li>
+                    <pre class="code-line"><code>{{ err.code }}</code></pre>
+
+                    <p class="fix-title">Suggested Fix:</p>
+                    <p>{{ err.fix_suggestion }}</p>
+                    <pre class="code-line"><code>{{ err.corrected_code }}</code></pre> -->
+                    <div class="error-item">
+                      <div class="error-header">
+                        <li class="line-number"></li><strong> Line {{ err.line }}</strong>
+                        <!-- Severity Badge -->
+                        <span class="badge"
+                              [ngClass]="{
+                                'critical': err.severity === 'Critical',
+                                'major': err.severity === 'Major',
+                                'minor': err.severity === 'Minor'
+                              }">
+                          {{ err.severity }}
+                        </span>
+
+                        <!-- Category Label -->
+                        <span class="category">{{ err.category }}</span>
+                      </div>
+
+                      <p class="description">{{ err.description }}</p>
+
+                      <pre class="code-line"><code>{{ err.code }}</code></pre>
+
+                      <p class="fix-title">Suggested Fix:</p>
+                      <p>{{ err.fix_suggestion }}</p>
+                      <pre class="code-fix"><code>{{ err.corrected_code }}</code></pre>
+                    </div>
+                  }
+                </ul>
+            </div>
+          }
+    </div>
+  </div>
+</div>

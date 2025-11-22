@@ -1,0 +1,72 @@
+<div>
+  <mat-toolbar color="primary" class="navbar">
+    <div class="app-header">
+      <img src="assets/detectai-logo.png" class="logo" (click)="goHome()" />
+      <h1 class="title" (click)="goHome()">Vulnerability Scanner</h1>
+    </div>
+  </mat-toolbar>
+
+  <div class="content">
+    <div class="inputBlock">
+      <h4>Scan your code for security vulnerabilities and weak spots.</h4>
+
+      <div class="codeBlock">
+        <textarea #codeBox rows="22" cols="80" placeholder="Paste your code"></textarea>
+        <button class="codeButton" (click)="scanCode(codeBox.value)">Scan Code</button>
+        <button class="codeButton" style="margin-right: 0.3rem;" (click)="reset()">Reset</button>
+      </div>
+
+      <div class="file-upload">
+        <h4 style="margin-top:25px;">Upload File</h4>
+        <input type="file" (change)="onFileSelected($event)" id="fileInput" hidden />
+        <label for="fileInput" class="attach-btn">📎 Attach file</label>
+        <span class="file-name">{{ selectedFileName || 'No file chosen' }}</span>
+        <button style="margin-top: 3rem;" class="fileButton" (click)="uploadFileToScan()">Scan File</button>
+      </div>
+    </div>
+
+    <div class="responseBlock">
+    <h4>Response</h4>
+    <div *ngIf="responseReceived && result" class="analysis-container">
+      <h4>🔍 Vulnerability Scan Results</h4>
+      <div class="loader" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Scanning...</p>
+      </div>
+      <div *ngIf="result.vulnerabilities?.length; else safeCode">
+        <table class="vuln-table">
+          <thead>
+            <tr>
+              <th>Line</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Severity</th>
+              <th>Fix Suggestion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of result.vulnerabilities">
+              <td>{{ v.line }}</td>
+              <td>{{ v.vulnerability_type }}</td>
+              <td>{{ v.description }}</td>
+              <td>{{ v.severity }}</td>
+              <td>{{ v.fix_suggestion }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #safeCode>
+        <p>✅ No vulnerabilities found! Your code looks secure.</p>
+      </ng-template>
+
+      <h4>Summary</h4>
+      <p>{{ result.summary }}</p>
+
+      <h4>Recommendations</h4>
+      <ul>
+        <li *ngFor="let rec of result.recommendations">{{ rec }}</li>
+      </ul>
+    </div></div>
+  </div>
+</div>

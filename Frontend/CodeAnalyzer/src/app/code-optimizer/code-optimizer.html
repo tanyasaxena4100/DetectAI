@@ -1,0 +1,57 @@
+<div>
+  <mat-toolbar color="primary" class="navbar">
+    <div class="app-header">
+      <img src="assets/detectai-logo.png" class="logo" (click)="goHome()"/>
+      <h1 class="title" (click)="goHome()">Code Optimizer</h1>
+      <!-- <span style="font-size: 14px;">Attach. Analyze. Improve.</span> -->
+    </div>
+    <!-- <span class="logo">DetectAI</span>
+    <span class="spacer"></span> -->
+  </mat-toolbar>
+
+  <div class = "content">
+    <div class="inputBlock">
+      <h4>Upload your code and let DetectAI optimize it for better performance & readability.</h4>
+      <div class="codeBlock"> 
+        <textarea #codeBox rows="22" cols="80" placeholder="Paste your code"></textarea>
+        <button class="codeButton" (click)="optimizeCode(codeBox.value)">Optimize Code</button>
+        <button class="codeButton" style="margin-right: 0.3rem;" (click)="reset()">Reset</button>
+      </div>
+      <br>
+      <div class="file-upload">
+        <h4 style="margin-top:25px;"> Upload File </h4>
+        <input type="file" (change)="onFileSelected($event)" id="fileInput" hidden />
+        <label for="fileInput" class="attach-btn">📎 Attach file</label>
+        <span class="file-name">{{ selectedFileName || 'No file chosen' }}</span>
+        <button style="margin-top: 3rem;" class="fileButton" (click)="uploadFileToOptimize()">Optimize File</button>
+      </div>
+    </div>
+
+    <div class="responseBlock">
+      <h4>Response</h4>
+      <div class="loader" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Optimizing...</p>
+      </div>
+      <div *ngIf="responseReceived && result" class="analysis-container">
+          <h4>Optimized Code</h4>
+          <pre class="code-output"><code>{{ result.optimized_code }}</code></pre>
+
+          <h4>Explanation of Improvements</h4>
+          <ul *ngIf="result.explanation?.length; else noExplanation">
+          <li *ngFor="let line of result.explanation">{{ line }}</li>
+          </ul>
+          <ng-template #noExplanation>
+          <p>No explanation provided.</p>
+          </ng-template>
+
+          <h4>Complexity Analysis</h4>
+          <p>Before: {{ result.complexity_analysis?.before || 'N/A' }}</p>
+          <p>After: {{ result.complexity_analysis?.after || 'N/A' }}</p>
+
+          <h4 *ngIf="result.remarks">Remarks</h4>
+          <p *ngIf="result.remarks">{{ result.remarks }}</p>
+      </div>
+    </div>
+  </div>
+</div>

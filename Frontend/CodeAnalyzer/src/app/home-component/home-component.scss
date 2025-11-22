@@ -1,0 +1,88 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #ffffff; /* light gray background */
+}
+
+/* Toolbar styling */
+.navbar {
+  position: sticky;      /* stays on top when scrolling */
+  top: 0;
+  z-index: 1000;
+  color: white;
+  background-color:  black;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+
+.logo {
+  height: 40px;   /* Adjust size */
+  width: auto;
+}
+
+.title {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.content {
+  // min-height: calc(100vh - 90px);
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 90px); /* full height minus header/footer */
+  background: url('/assets/bg-image.jpg') center/cover no-repeat;
+}
+
+//Content or tile styling
+.tile-container {
+  flex: 1; /* take remaining space */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2x2 grid */
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  padding: 10px;
+  margin: 3rem 8rem;
+  // max-width: 10000px;   /* limit how wide the grid can go */
+  // margin: 0 auto;      /* center it horizontally */
+}
+
+.tile {
+  background: black;
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  display: flex; /* center text */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width:35rem;
+  // aspect-ratio: 1 / 1; /* force tiles to be square */
+}
+
+.tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Desktop: 2 columns */
+@media (min-width: 768px) {
+  .tile-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// .tile.disabled {
+//   opacity: 0.5;              /* visually faded */
+//   pointer-events: none;      /* disables click */
+//   cursor: not-allowed;       /* shows “disabled” cursor */
+// }

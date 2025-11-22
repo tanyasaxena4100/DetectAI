@@ -1,0 +1,47 @@
+<div>
+  <mat-toolbar color="primary" class="navbar">
+    <div class="app-header">
+      <img src="assets/detectai-logo.png" class="logo" (click)="goHome()" />
+      <h1 class="title" (click)="goHome()">Code Summarizer</h1>
+    </div>
+  </mat-toolbar>
+
+  <div class="content">
+    <div class="inputBlock">
+      <h4>Paste your code to get a concise summary and explanation.</h4>
+
+      <div class="codeBlock">
+        <textarea #codeBox rows="22" cols="80" placeholder="Paste your code here"></textarea>
+        <button class="codeButton" (click)="summarizeCode(codeBox.value)">Summarize Code</button>
+        <button class="codeButton" style="margin-right: 0.3rem;" (click)="reset()">Reset</button>
+      </div>
+
+      <div class="file-upload">
+        <h4 style="margin-top:25px;">Upload File</h4>
+        <input type="file" (change)="onFileSelected($event)" id="fileInput" hidden />
+        <label for="fileInput" class="attach-btn">📎 Attach file</label>
+        <span class="file-name">{{ selectedFileName || 'No file chosen' }}</span>
+        <button style="margin-top: 1rem;" class="fileButton" (click)="uploadFileToSummarize()">Summarize File</button>
+      </div>
+    </div>
+
+    <div class="responseBlock">
+      <div *ngIf="responseReceived && result" class="analysis-container">
+        <h4>Explanation</h4>
+        <div class="loader" *ngIf="loading">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Summarizing...</p>
+        </div>
+        <p>{{ result.summary }}</p>
+
+        <h4>Detailed Explanation</h4>
+        <p>{{ result.detailed_explanation }}</p>
+
+        <h4>Key Points</h4>
+        <ul>
+          <li *ngFor="let p of result.key_points">{{ p }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
