@@ -26,22 +26,27 @@
     </div>
 
     <div class="responseBlock">
-      <div *ngIf="responseReceived && result" class="analysis-container">
+      <!-- <div *ngIf="responseReceived && result" class="analysis-container"> -->
         <h4>Explanation</h4>
         <div class="loader" *ngIf="loading">
           <mat-spinner diameter="50"></mat-spinner>
           <p>Summarizing...</p>
         </div>
-        <p>{{ result.summary }}</p>
+        <div *ngIf="invalidInput">
+          <div class="warning">{{ backendResponse.errorMsg }}</div>
+        </div>
+        <div *ngIf="responseReceived && result" class="analysis-container">
+          <p>{{ result.summary }}</p>
 
-        <h4>Detailed Explanation</h4>
-        <p>{{ result.detailed_explanation }}</p>
+          <h4>Detailed Explanation</h4>
+          <p>{{ result.detailed_explanation }}</p>
 
-        <h4>Key Points</h4>
-        <ul>
-          <li *ngFor="let p of result.key_points">{{ p }}</li>
-        </ul>
-      </div>
+          <h4>Key Points</h4>
+          <ul>
+            <li *ngFor="let p of result.key_points">{{ p }}</li>
+          </ul>
+        </div>
+      <!-- </div> -->
     </div>
   </div>
 </div>

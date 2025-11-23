@@ -43,6 +43,7 @@ export class CodeExplainerComponent {
   loading: boolean = false;
   result: SummarizationResult | null = null;
   backendResponse: SummarizationResponse = {};
+  invalidInput: boolean = false;
 
   selectedFile: File | null = null;
   selectedFileName: string | null = null;
@@ -63,8 +64,14 @@ export class CodeExplainerComponent {
         console.log('Summarizer response:', res);
         this.loading = false;
         this.backendResponse = res;
-        this.result = res.summarization ?? null;
-        this.responseReceived = true;
+        if(res.errorMsg) {
+          console.log('Invalid input detected - ' + this.backendResponse.errorMsg);
+          this.invalidInput = true;
+        } else {
+          this.result = res.summarization ?? null;
+          this.responseReceived = true;
+          this.invalidInput = false;
+        }
       },
       error: (err) => {
         console.error('Error summarizing code:', err);
@@ -108,6 +115,7 @@ export class CodeExplainerComponent {
     }
     this.result = null;
     this.responseReceived = false;
+    this.invalidInput = false;
     this.selectedFileName = null;
   }
 }

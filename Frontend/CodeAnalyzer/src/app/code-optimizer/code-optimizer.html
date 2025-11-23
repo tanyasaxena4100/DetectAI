@@ -33,6 +33,9 @@
         <mat-spinner diameter="50"></mat-spinner>
         <p>Optimizing...</p>
       </div>
+      <div *ngIf="invalidInput">
+        <div class="warning">{{ backendResponse.errorMsg }}</div>
+      </div>
       <div *ngIf="responseReceived && result" class="analysis-container">
           <h4>Optimized Code</h4>
           <pre class="code-output"><code>{{ result.optimized_code }}</code></pre>

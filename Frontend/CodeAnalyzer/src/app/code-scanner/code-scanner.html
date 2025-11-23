@@ -27,6 +27,9 @@
 
     <div class="responseBlock">
     <h4>Response</h4>
+    <div *ngIf="invalidInput">
+      <div class="warning">{{ backendResponse.errorMsg }}</div>
+    </div>
     <div *ngIf="responseReceived && result" class="analysis-container">
       <h4>🔍 Vulnerability Scan Results</h4>
       <div class="loader" *ngIf="loading">

@@ -199,8 +199,8 @@ def optimize_code(input: CodeInput):
     code_pattern = re.compile(r"(class |def |public |function |\{|\};|;|\(|\))", re.MULTILINE)
     if not code_pattern.search(code_text):
         return {
-            "optimized_code": "",
-            "explanation": "⚠️ The input does not appear to be source code. Please paste a valid code snippet."
+            "errors": [],
+            "errorMsg": "⚠️ The input does not appear to be source code. Please paste a valid code snippet."
         }
 
     # prompt for GPT
@@ -264,11 +264,7 @@ def summarize_code(input: CodeInput):
     code_pattern = re.compile(r"(class |def |public |function |\{|\};|;|\(|\))", re.MULTILINE)
     if not code_pattern.search(code_text):
         return {
-            "summarization": {
-                "summary": "",
-                "detailed_explanation": "⚠️ The input does not appear to be source code. Please paste a valid code snippet.",
-                "key_points": []
-            },
+            "errors": [],
             "errorMsg": "⚠️ The input does not appear to be source code. Please paste a valid code snippet."
         }
 
@@ -326,6 +322,13 @@ def scan_vulnerabilities(input: CodeInput):
     if not code_text:
         return {"errorMsg": "No code provided."}
 
+    code_pattern = re.compile(r"(class |def |public |function |\{|\};|;|\(|\))", re.MULTILINE)
+    if not code_pattern.search(code_text):
+        return {
+            "errors": [],
+            "errorMsg": "⚠️ The input does not appear to be source code. Please paste a valid code snippet."
+        }
+        
     messages = [
         {"role": "system", "content": "You are a cybersecurity code scanning assistant."},
         {"role": "user", "content": f"""

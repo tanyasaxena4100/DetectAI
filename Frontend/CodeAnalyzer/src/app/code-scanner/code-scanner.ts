@@ -48,6 +48,8 @@ export class CodeScannerComponent {
   result: ScanResult | null = null;
   selectedFileName: string | null = null;
   selectedFile: File | null = null;
+  invalidInput: boolean = false;
+  backendResponse: any = {};
 
   constructor(private detectAI: DetectAIService, private router: Router) {}
 
@@ -64,8 +66,15 @@ export class CodeScannerComponent {
       next: (res) => {
         console.log('Scan response:', res);
         this.loading = false;
-        this.result = res.scan ?? null;
-        this.responseReceived = true;
+        this.backendResponse = res;
+        if(res.errorMsg) {
+          console.log('Invalid input detected');
+          this.invalidInput = true;
+        } else {
+          this.invalidInput = false;
+          this.result = res.scan ?? null;
+          this.responseReceived = true;
+        }
       },
       error: (err) => {
         console.error('Error scanning code:', err);
@@ -106,6 +115,7 @@ export class CodeScannerComponent {
       this.codeBox.nativeElement.value = '';
     }
     this.result = null;
+    this.invalidInput = false;
     this.responseReceived = false;
     this.selectedFileName = null;
   }

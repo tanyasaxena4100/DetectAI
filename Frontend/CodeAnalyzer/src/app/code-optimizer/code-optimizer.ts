@@ -43,6 +43,7 @@ export class CodeOptimizerComponent {
   responseReceived: boolean = false;
   loading: boolean = false;
   result: any = {};
+  invalidInput: boolean = false;
   backendResponse: OptimizationResponse = {};
   analysisResult: OptimizationResponse = {};
 
@@ -65,8 +66,14 @@ export class CodeOptimizerComponent {
         console.log('Optimizer response:', res);
         this.loading = false;
         this.backendResponse = res;
-        this.result = res.optimization
-        this.responseReceived = true;
+        if(res.errorMsg) {
+          console.log('Invalid input detected');
+          this.invalidInput = true;
+        } else {
+          this.result = res.optimization
+          this.invalidInput = false;
+          this.responseReceived = true;
+        }
       },
       error: (err) => {
         console.error('Error analyzing code:', err);
@@ -110,6 +117,7 @@ export class CodeOptimizerComponent {
       this.codeBox.nativeElement.value = '';
     }
     this.result = {};
+    this.invalidInput = false;
     this.responseReceived = false;
     this.selectedFileName = null;
   }
