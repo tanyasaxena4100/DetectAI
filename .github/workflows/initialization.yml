@@ -21,54 +21,40 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Verify Python environment setup
-        run: |
-          echo "Python version:"
-          python --version
-
-      - name: Check for requirements.txt
-        run: |
-          if [ ! -f "requirements.txt" ]; then
-            echo "WARNING: No requirements.txt found. Python dependency installation skipped."
-            exit 0
-          fi
+      - name: Validate Python setup
+        run: python --version
 
       - name: Install Python dependencies
-        if: hashFiles('requirements.txt') != ''
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Basic Python import validation
-        run: |
-          echo "Checking Python modules import correctness..."
-          python - << 'EOF'
-          import pkgutil
-          print("Python import system OK.")
-          EOF
+          if [ -f "Backend/requirements.txt" ]; then
+            echo "Installing Python dependencies..."
+            pip install -r Backend/requirements.txt
+          else
+            echo "No Backend/requirements.txt found. Skipping Python installation."
+          fi
 
       ###############################################################
-      # ANGULAR INITIALIZATION CHECK
+      # ANGULAR INITIALIZATION CHECK — Correct Directory
       ###############################################################
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
-      - name: Validate package.json existence
+      - name: Validate Angular package.json
         run: |
-          if [ ! -f "package.json" ]; then
-            echo "WARNING: No package.json found. Skipping Angular checks."
-            exit 0
+          if [ ! -f "Frontend/CodeAnalyzer/package.json" ]; then
+            echo "Angular package.json missing in Frontend/CodeAnalyzer."
+            exit 1
           fi
 
       - name: Install Angular dependencies
-        run: |
-          npm install
+        working-directory: Frontend/CodeAnalyzer
+        run: npm install
 
       - name: Validate Angular CLI load
-        run: |
-          npx ng version || echo "Angular CLI not installed globally but project still usable."
+        working-directory: Frontend/CodeAnalyzer
+        run: npx ng version
 
       ###############################################################
       # FINAL STATUS
