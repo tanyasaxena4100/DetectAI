@@ -1,0 +1,63 @@
+name: Initialization Scan
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  init-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      ###############################################################
+      # PYTHON INITIALIZATION CHECK
+      ###############################################################
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate Python setup
+        run: python --version
+
+      - name: Install Python dependencies
+        run: |
+          if [ -f "Backend/requirements.txt" ]; then
+            echo "Installing Python dependencies..."
+            pip install -r Backend/requirements.txt
+          else
+            echo "No Backend/requirements.txt found. Skipping Python installation."
+          fi
+
+      ###############################################################
+      # ANGULAR INITIALIZATION CHECK — Correct Directory
+      ###############################################################
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate Angular package.json
+        run: |
+          if [ ! -f "Frontend/CodeAnalyzer/package.json" ]; then
+            echo "Angular package.json missing in Frontend/CodeAnalyzer."
+            exit 1
+          fi
+
+      - name: Install Angular dependencies
+        working-directory: Frontend/CodeAnalyzer
+        run: npm install
+
+      - name: Validate Angular CLI load
+        working-directory: Frontend/CodeAnalyzer
+        run: npx ng version
+
+      ###############################################################
+      # FINAL STATUS
+      ###############################################################
+      - name: Initialization Completed
+        run: echo "Initialization scan completed successfully."
