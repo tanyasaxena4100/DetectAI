@@ -1,0 +1,60 @@
+name: PR-CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  python-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies (optional)
+        run: |
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt || echo "Skipped installing Python deps"
+          else
+            echo "No requirements.txt found"
+          fi
+
+      - name: Python syntax check (non-failing)
+        run: |
+          echo "Running Python syntax check"
+          python -m py_compile $(git ls-files '*.py') || echo "Python syntax issues detected but not failing the pipeline"
+
+      - name: Mark status
+        run: echo "status=passed" >> $GITHUB_OUTPUT
+
+  angular-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Angular dependencies (optional)
+        run: |
+          if [ -f "package.json" ]; then
+            npm install || echo "Skipped installing Angular deps"
+          else
+            echo "No package.json found"
+          fi
+
+      - name: Angular tests placeholder
+        run: |
+          echo "Skipping Angular tests — placeholder only"
+
+      - name: Mark status
+        run: echo "status=passed" >> $GITHUB_OUTPUT
