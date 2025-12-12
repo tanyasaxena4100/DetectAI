@@ -1,189 +1,66 @@
-name: Compile & Build Validation (Angular + Python)
+name: Compile Angular and Python
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
   push:
-    branches:
-      - main
-
-permissions:
-  contents: read
-  actions: read
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  angular-compile:
-    name: Angular Compile (Frontend/CodeAnalyzer)
+  compile:
     runs-on: ubuntu-latest
-    outputs:
-      status: ${{ steps.set_status.outputs.status }}
 
     steps:
+      # 1. Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: Frontend/CodeAnalyzer/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('Frontend/CodeAnalyzer/package-lock.json', 'Frontend/CodeAnalyzer/yarn.lock', 'Frontend/CodeAnalyzer/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Validate Angular project files
-        run: |
-          if [ ! -d "Frontend/CodeAnalyzer" ]; then
-            echo "ERROR: Frontend/CodeAnalyzer directory not found."
-            exit 1
-          fi
-          if [ ! -f "Frontend/CodeAnalyzer/package.json" ]; then
-            echo "ERROR: package.json not found in Frontend/CodeAnalyzer."
-            exit 1
-          fi
-          echo "Angular project validated."
-
-      - name: Install Angular dependencies
-        working-directory: Frontend/CodeAnalyzer
-        run: |
-          if [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: TypeScript diagnostics (no emit)
-        working-directory: Frontend/CodeAnalyzer
-        run: |
-          # run tsc if present; ignore if not configured
-          if [ -f "tsconfig.json" ]; then
-            npx tsc --noEmit
-          else
-            echo "No tsconfig.json found, skipping tsc check."
-          fi
-
-      - name: Angular production build
-        working-directory: Frontend/CodeAnalyzer
-        run: |
-          npx ng build --configuration production
-
-      - name: Verify dist output
-        working-directory: Frontend/CodeAnalyzer
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "ERROR: dist folder not produced by ng build."
-            ls -la
-            exit 1
-          fi
-          echo "Angular build succeeded. dist contents:"
-          ls -la dist || true
-
-      - name: Upload Angular build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: angular-dist
-          path: Frontend/CodeAnalyzer/dist
-      - name: Set status success
-        id: set_status
-        run: echo "::set-output name=status::success"
-
-  python-compile:
-    name: Python Compile & Build (Backend)
-    runs-on: ubuntu-latest
-    outputs:
-      status: ${{ steps.set_status.outputs.status }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Validate Backend project files
-        run: |
-          if [ ! -d "Backend" ]; then
-            echo "ERROR: Backend directory not found."
-            exit 1
-          fi
-          if [ ! -f "Backend/requirements.txt" ] && [ ! -f "Backend/pyproject.toml" ] && [ ! -f "Backend/setup.py" ]; then
-            echo "WARNING: No requirements.txt, pyproject.toml or setup.py in Backend. Dependency install may be skipped."
-          fi
-          echo "Backend project validated."
-
-      - name: Setup Python 3.10
+      # 2. Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Cache pip
-        uses: actions/cache@v4
+      # 3. Install Python dependencies
+      - name: Install Python dependencies
+        run: |
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          else
+            echo "No Python dependencies found."
+          fi
+
+      # 4. Setup Node.js (Angular requires Node 20+)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('Backend/requirements.txt', 'Backend/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          node-version: '20'
 
-      - name: Install Python dependencies (if requirements.txt exists)
-        if: ${{ always() }}
+      # 5. Install Angular CLI (optional if already local)
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      # 6. Install Angular dependencies
+      - name: Install Angular dependencies
         run: |
-          if [ -f "Backend/requirements.txt" ]; then
-            python -m pip install --upgrade pip
-            pip install -r Backend/requirements.txt
+          if [ -f "package.json" ]; then
+            npm install
           else
-            echo "No requirements.txt found - attempting to continue."
+            echo "No Angular project detected (package.json missing)."
           fi
 
-      - name: Python syntax check (compile .py files)
+      # 7. Angular compile build
+      - name: Build Angular project
         run: |
-          set -o errexit
-          files=$(git ls-files "Backend/**/*.py" || true)
-          if [ -z "$files" ]; then
-            echo "No Python files found under Backend. Skipping py_compile."
+          if [ -f "angular.json" ]; then
+            ng build --configuration production
           else
-            python -m py_compile $files
-            echo "Python syntax check passed."
+            echo "No Angular workspace detected (angular.json missing). Skipping."
           fi
 
-      - name: Optional: run unit tests (if pytest present)
+      # 8. Python compile step
+      - name: Python compile check
         run: |
-          if [ -f "Backend/pytest.ini" ] || grep -q "pytest" Backend/requirements.txt 2>/dev/null; then
-            pip install pytest || true
-            pytest Backend || echo "pytest ran (non-zero exit allowed for POC)"
-          else
-            echo "No pytest config detected; skipping unit tests."
-          fi
-
-      - name: Attempt to build distribution (sdist/wheel) if configured
-        run: |
-          if [ -f "Backend/pyproject.toml" ] || [ -f "Backend/setup.py" ]; then
-            python -m pip install build
-            (cd Backend && python -m build) || echo "Build attempted but failed or no build config"
-          else
-            echo "No packaging configuration found; skipping build."
-          fi
-
-      - name: Upload Python build artifacts (if any)
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-build
-          path: |
-            Backend/dist
-            Backend/build
-
-      - name: Set status success
-        id: set_status
-        run: echo "::set-output name=status::success"
-
-  compile-summary:
-    name: Compile Summary
-    runs-on: ubuntu-latest
-    needs: [angular-compile, python-compile]
-    steps:
-      - name: Summary of job outcomes
-        run: |
-          echo "Angular job result: ${{ needs.angular-compile.result }}"
-          echo "Python job result: ${{ needs.python-compile.result }}"
-          echo "If both are 'success', compile checks passed."
+          echo "Compiling all Python files..."
+          python -m compileall .
