@@ -1,1 +1,57 @@
+name: CI Pipeline
 
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Python Unit Tests
+        run: |
+          pytest --maxfail=1 --disable-warnings --cache-clear
+
+      - name: Run Python Lint (flake8)
+        run: |
+          pip install flake8
+          flake8 .
+
+  angular-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Angular dependencies
+        run: |
+          npm install
+
+      - name: Run Angular Unit Tests
+        run: |
+          npm run test -- --watch=false
+
+      - name: Run Angular Lint
+        run: |
+          npm run lint || true
