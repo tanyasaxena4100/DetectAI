@@ -1,0 +1,66 @@
+name: Compile Angular and Python
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 3. Install Python dependencies
+      - name: Install Python dependencies
+        run: |
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          else
+            echo "No Python dependencies found."
+          fi
+
+      # 4. Setup Node.js (Angular requires Node 20+)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 5. Install Angular CLI (optional if already local)
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      # 6. Install Angular dependencies
+      - name: Install Angular dependencies
+        run: |
+          if [ -f "package.json" ]; then
+            npm install
+          else
+            echo "No Angular project detected (package.json missing)."
+          fi
+
+      # 7. Angular compile build
+      - name: Build Angular project
+        run: |
+          if [ -f "angular.json" ]; then
+            ng build --configuration production
+          else
+            echo "No Angular workspace detected (angular.json missing). Skipping."
+          fi
+
+      # 8. Python compile step
+      - name: Python compile check
+        run: |
+          echo "Compiling all Python files..."
+          python -m compileall .
