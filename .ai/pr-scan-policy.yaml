@@ -1,0 +1,15 @@
+mandatory_checks:
+  security:
+    - "Analyze (python)"
+    - "Analyze (actions)"
+    - "Analyze (javascript-typescript)"
+    - "CodeQL"
+
+  build:
+    - "compile"
+
+  ci:
+    - "init-check"
+
+informational_checks:
+  - "CodeQL Scan"
