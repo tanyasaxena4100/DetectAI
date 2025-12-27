@@ -18,11 +18,19 @@ GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
 if not all([GITHUB_TOKEN, GITHUB_REPOSITORY, GITHUB_EVENT_PATH]):
     raise RuntimeError("Missing required GitHub environment variables")
 
+# -----------------------------
+# Watsonx environment
+# -----------------------------
+WATSONX_APIKEY = os.getenv("IBM_WATSONX_APIKEY")
+WATSONX_URL = os.getenv("IBM_WATSONX_URL")
+
+if not all([WATSONX_APIKEY, WATSONX_URL]):
+    raise RuntimeError("Missing required Watsonx environment variables")
+
 HEADERS = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github+json"
 }
-
 
 # -----------------------------
 # Load GitHub event
