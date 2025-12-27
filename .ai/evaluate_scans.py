@@ -39,11 +39,12 @@ HEADERS = {
 with open(GITHUB_EVENT_PATH, "r") as f:
     event = json.load(f)
 
-if "pull_request" not in event:
-    print("No pull request context found. Exiting.")
+pr_info = event.get("pull_request")
+if pr_info is None:
+    print("No pull_request found in event. Exiting.")
     sys.exit(0)
 
-PR_NUMBER = event["pull_request"]["number"]
+PR_NUMBER = pr_info["number"]
 
 
 # -----------------------------
