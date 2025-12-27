@@ -22,5 +22,5 @@ jobs:
         run: pip install requests pyyaml
 
       - name: Evaluate PR scans (dry run)
-        run: |
+        run: .ai/evaluate_scans.py
           echo "PR event received. Evaluation logic will be added next."
