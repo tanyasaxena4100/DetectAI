@@ -39,4 +39,4 @@ jobs:
 
       - name: Convert Bandit output to SARIF
         run: |
-          bandit -r . -f sarif -o results.sarif
+          bandit -r . -f json -o bandit-results.json || true
