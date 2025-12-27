@@ -19,11 +19,15 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install requests pyyaml
+        run: |
+          pip install requests pyyaml
+          pip install ibm-watsonx-ai  # Install the official Watsonx AI Python SDK
 
       - name: Evaluate PR scans
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          IBM_WATSONX_APIKEY: ${{ secrets.IBM_WATSONX_APIKEY }}  # API key for Watsonx
+          IBM_WATSONX_URL: ${{ secrets.IBM_WATSONX_URL }}        # Watsonx base URL
         run: |
           python .ai/evaluate_scans.py
