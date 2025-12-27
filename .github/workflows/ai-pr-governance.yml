@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests pyyaml
 
-      - name: Evaluate PR scans (dry run)
-        run: .ai/evaluate_scans.py
-          echo "PR event received. Evaluation logic will be added next."
+      - name: Evaluate PR scans
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python .ai/evaluate_scans.py
