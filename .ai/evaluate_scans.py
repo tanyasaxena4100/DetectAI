@@ -21,10 +21,11 @@ if not all([GITHUB_TOKEN, GITHUB_REPOSITORY, GITHUB_EVENT_PATH]):
 # -----------------------------
 # Watsonx environment
 # -----------------------------
-WATSONX_APIKEY = os.getenv("IBM_WATSONX_APIKEY")
-WATSONX_URL = os.getenv("IBM_WATSONX_URL")
+WATSONX_API_KEY = os.getenv("WATSONX_API_KEY")
+WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
+WATSONX_REGION = os.getenv("WATSONX_REGION")
 
-if not all([WATSONX_APIKEY, WATSONX_URL]):
+if not all([WATSONX_API_KEY, WATSONX_PROJECT_ID, WATSONX_REGION]):
     raise RuntimeError("Missing required Watsonx environment variables")
 
 HEADERS = {
