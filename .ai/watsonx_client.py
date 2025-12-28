@@ -55,7 +55,14 @@ def call_watsonx(prompt: str) -> str:
     }
 
     response = requests.post(url, headers=headers, json=payload)
-    response.raise_for_status()
 
+    if response.status_code != 200:
+        print("===== WATSONX DEBUG =====")
+        print("Watsonx URL:", url)
+        print("Status code:", response.status_code)
+        print("Response body:", response.text)
+        print("========================")
+        response.raise_for_status()
+    
     result = response.json()
     return result["results"][0]["generated_text"]
