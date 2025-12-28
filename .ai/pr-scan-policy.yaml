@@ -10,6 +10,3 @@ mandatory_checks:
 
   ci:
     - "init-check"
-
-informational_checks:
-  - "CodeQL Scan"
