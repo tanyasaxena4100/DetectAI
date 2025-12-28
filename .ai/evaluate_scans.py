@@ -72,7 +72,12 @@ checks_resp.raise_for_status()
 check_runs = checks_resp.json().get("check_runs", [])
 
 # Build a mapping of check name -> conclusion
-status_map = {check["name"]: check["conclusion"] for check in check_runs}
+# status_map = {check["name"]: check["conclusion"] for check in check_runs}
+status_map = {
+    check["name"]: check["conclusion"]
+    for check in check_runs
+    if check["name"] != "evaluate-pr"
+}
 
 # -----------------------------
 # DEBUG: Print status map
