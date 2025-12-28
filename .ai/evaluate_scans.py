@@ -96,10 +96,6 @@ for check in mandatory_checks:
         print(f"Mandatory check missing: {check}")
         wait = True
         break
-    if status_map[check] is None:
-        print(f"Mandatory check still in progress: {check}")
-        wait = True
-        break
     if status_map[check] != "success":
         print(f"Mandatory check failed: {check}")
         fail = True
