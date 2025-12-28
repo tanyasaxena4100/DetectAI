@@ -1,53 +1,42 @@
 import os
 import requests
+import json
 
-WATSONX_API_KEY = os.getenv("WATSONX_API_KEY")
-WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
-WATSONX_REGION = os.getenv("WATSONX_REGION", "us-south")
+API_KEY = os.getenv("WATSONX_API_KEY")
+PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
+REGION = os.getenv("WATSONX_REGION")
 
-if not all([WATSONX_API_KEY, WATSONX_PROJECT_ID, WATSONX_REGION]):
+if not all([API_KEY, PROJECT_ID, REGION]):
     raise RuntimeError("Missing required Watsonx environment variables")
 
-IAM_TOKEN_URL = "https://iam.cloud.ibm.com/identity/token"
-WATSONX_API_BASE = f"https://{WATSONX_REGION}.ml.cloud.ibm.com"
+URL = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/chat/completions?version=2024-03-01"
+
+HEADERS = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
 
 
-def _get_iam_token():
-    response = requests.post(
-        IAM_TOKEN_URL,
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        data={
-            "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
-            "apikey": WATSONX_API_KEY,
-        },
-    )
-    response.raise_for_status()
-    return response.json()["access_token"]
-
-
-def call_watsonx(prompt: str) -> dict:
-    token = _get_iam_token()
-
-    url = f"{WATSONX_API_BASE}/ml/v1/text/generation?version=2024-03-01"
-
+def call_watsonx(prompt: str) -> str:
     payload = {
-        "model_id": "ibm/granite-13b-chat-v2",
-        "project_id": WATSONX_PROJECT_ID,
-        "input": prompt,
-        "parameters": {
-            "decoding_method": "greedy",
-            "max_new_tokens": 300,
-            "temperature": 0.2
-        }
+        "model": "meta-llama/llama-3-70b-instruct",
+        "project_id": PROJECT_ID,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are an AI PR reviewer enforcing repository policy."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "max_tokens": 500,
+        "temperature": 0.2
     }
 
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(URL, headers=HEADERS, json=payload)
     response.raise_for_status()
 
-    result = response.json()
-    return result["results"][0]["generated_text"]
+    data = response.json()
+    return data["choices"][0]["message"]["content"]
