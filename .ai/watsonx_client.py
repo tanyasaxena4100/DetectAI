@@ -20,15 +20,15 @@ def get_iam_token() -> str:
         "apikey": API_KEY
     }
 
-    resp = requests.post(url, headers=headers, data=data)
-    resp.raise_for_status()
-    return resp.json()["access_token"]
+    response = requests.post(url, headers=headers, data=data)
+    response.raise_for_status()
+    return response.json()["access_token"]
 
 
 def call_watsonx(prompt: str) -> str:
     access_token = get_iam_token()
 
-    url = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/chat/completions?version=2024-03-01"
+    url = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/text/chat?version=2024-03-01"
 
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -36,7 +36,7 @@ def call_watsonx(prompt: str) -> str:
     }
 
     payload = {
-        "model": "meta-llama/llama-3-70b-instruct",
+        "model_id": "meta-llama/llama-3-70b-instruct",
         "project_id": PROJECT_ID,
         "messages": [
             {
@@ -48,12 +48,14 @@ def call_watsonx(prompt: str) -> str:
                 "content": prompt
             }
         ],
-        "max_tokens": 500,
-        "temperature": 0.2
+        "parameters": {
+            "max_new_tokens": 500,
+            "temperature": 0.2
+        }
     }
 
     response = requests.post(url, headers=headers, json=payload)
     response.raise_for_status()
 
-    data = response.json()
-    return data["choices"][0]["message"]["content"]
+    result = response.json()
+    return result["results"][0]["generated_text"]
