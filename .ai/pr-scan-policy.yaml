@@ -1,12 +1,17 @@
 mandatory_checks:
   security:
-    - "Analyze (python)"
-    - "Analyze (actions)"
-    - "Analyze (javascript-typescript)"
-    - "CodeQL"
+    - "bandit-scan"
 
   build:
     - "compile"
 
   ci:
-    - "init-check"
+    - "angular-job"
+    - "python-job"
+
+informational_checks:
+  - "Analyze (python)"
+  - "Analyze (actions)"
+  - "Analyze (javascript-typescript)"
+  - "CodeQL"
+  - "init-check"
