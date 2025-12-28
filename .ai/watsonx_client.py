@@ -9,15 +9,32 @@ REGION = os.getenv("WATSONX_REGION")
 if not all([API_KEY, PROJECT_ID, REGION]):
     raise RuntimeError("Missing required Watsonx environment variables")
 
-URL = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/chat/completions?version=2024-03-01"
 
-HEADERS = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json"
-}
+def get_iam_token() -> str:
+    url = "https://iam.cloud.ibm.com/identity/token"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    data = {
+        "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
+        "apikey": API_KEY
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+    resp.raise_for_status()
+    return resp.json()["access_token"]
 
 
 def call_watsonx(prompt: str) -> str:
+    access_token = get_iam_token()
+
+    url = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/chat/completions?version=2024-03-01"
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
     payload = {
         "model": "meta-llama/llama-3-70b-instruct",
         "project_id": PROJECT_ID,
@@ -35,7 +52,7 @@ def call_watsonx(prompt: str) -> str:
         "temperature": 0.2
     }
 
-    response = requests.post(URL, headers=HEADERS, json=payload)
+    response = requests.post(url, headers=headers, json=payload)
     response.raise_for_status()
 
     data = response.json()
