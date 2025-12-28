@@ -36,7 +36,7 @@ def call_watsonx(prompt: str) -> str:
     }
 
     payload = {
-        "model_id": "meta-llama/llama-3-70b-instruct",
+        "model_id": "ibm/granite-13b-chat-v2",
         "project_id": PROJECT_ID,
         "messages": [
             {
