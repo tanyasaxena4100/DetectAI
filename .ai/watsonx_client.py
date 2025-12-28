@@ -38,7 +38,7 @@ def call_watsonx(prompt: str) -> str:
     }
 
     payload = {
-        "model_id": "granite-8b-code-instruct",
+        "model_id": "llama-guard-3-11b-vision",
         "project_id": PROJECT_ID,
         "messages": [
             {
@@ -68,3 +68,8 @@ def call_watsonx(prompt: str) -> str:
     
     result = response.json()
     return result["results"][0]["generated_text"]
+
+if __name__ == "__main__":
+    # Test the Watsonx client
+    test_prompt = "Check this PR for Python best practices."
+    print(call_watsonx(test_prompt))
