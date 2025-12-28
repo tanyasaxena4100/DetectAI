@@ -9,7 +9,7 @@ REGION = os.getenv("WATSONX_REGION")
 if not all([API_KEY, PROJECT_ID, REGION]):
     raise RuntimeError("Missing required Watsonx environment variables")
 
-WATSONX_URL = f"https://{WATSONX_REGION}.ml.cloud.ibm.com"
+WATSONX_URL = f"https://{REGION}.ml.cloud.ibm.com"
 
 def get_iam_token() -> str:
     url = "https://iam.cloud.ibm.com/identity/token"
