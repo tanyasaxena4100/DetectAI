@@ -1,53 +1,68 @@
 import os
 import requests
+import json
 
-WATSONX_API_KEY = os.getenv("WATSONX_API_KEY")
-WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
-WATSONX_REGION = os.getenv("WATSONX_REGION", "us-south")
+API_KEY = os.getenv("WATSONX_API_KEY")
+PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
+REGION = os.getenv("WATSONX_REGION")
 
-if not all([WATSONX_API_KEY, WATSONX_PROJECT_ID, WATSONX_REGION]):
+if not all([API_KEY, PROJECT_ID, REGION]):
     raise RuntimeError("Missing required Watsonx environment variables")
 
-IAM_TOKEN_URL = "https://iam.cloud.ibm.com/identity/token"
-WATSONX_API_BASE = f"https://{WATSONX_REGION}.ml.cloud.ibm.com"
+WATSONX_URL = f"https://{REGION}.ml.cloud.ibm.com"
 
+def get_iam_token() -> str:
+    url = "https://iam.cloud.ibm.com/identity/token"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    data = {
+        "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
+        "apikey": API_KEY
+    }
 
-def _get_iam_token():
-    response = requests.post(
-        IAM_TOKEN_URL,
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        data={
-            "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
-            "apikey": WATSONX_API_KEY,
-        },
-    )
+    response = requests.post(url, headers=headers, data=data)
     response.raise_for_status()
     return response.json()["access_token"]
 
 
-def call_watsonx(prompt: str) -> dict:
-    token = _get_iam_token()
+def call_watsonx(prompt: str) -> str:
+    if not prompt or not prompt.strip():
+        raise ValueError("Watsonx prompt must not be empty")
+    access_token = get_iam_token()
 
-    url = f"{WATSONX_API_BASE}/ml/v1/text/generation?version=2024-03-01"
+    # url = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/text/chat?version=2024-03-01"
+    url = f"{WATSONX_URL}/ml/v1/text/generation?version=2024-03-01"
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
 
     payload = {
-        "model_id": "ibm/granite-13b-chat-v2",
-        "project_id": WATSONX_PROJECT_ID,
+        "model_id": "llama-3-2-11b-vision-instruct",
+        "project_id": PROJECT_ID,
         "input": prompt,
         "parameters": {
-            "decoding_method": "greedy",
-            "max_new_tokens": 300,
+            "max_new_tokens": 200,
             "temperature": 0.2
         }
     }
 
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+    response = requests.post(url, headers=headers, json=payload)
 
-    response = requests.post(url, json=payload, headers=headers)
-    response.raise_for_status()
-
+    if response.status_code != 200:
+        print("===== WATSONX DEBUG =====")
+        print("Watsonx URL:", url)
+        print("Status code:", response.status_code)
+        print("Response body:", response.text)
+        print("========================")
+        response.raise_for_status()
+    
     result = response.json()
     return result["results"][0]["generated_text"]
+
+if __name__ == "__main__":
+    # Test the Watsonx client
+    test_prompt = "Check this PR for Python best practices."
+    print(call_watsonx(test_prompt))
