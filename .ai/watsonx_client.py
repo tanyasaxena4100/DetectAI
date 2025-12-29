@@ -30,7 +30,7 @@ def call_watsonx(prompt: str) -> str:
     access_token = get_iam_token()
 
     # url = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/text/chat?version=2024-03-01"
-    url = f"{WATSONX_URL}/ml/v1/chat/completions?version=2024-03-01"
+    url = f"{WATSONX_URL}/ml/v1/text/generation?version=2024-03-01"
 
     headers = {
         "Authorization": f"Bearer {access_token}",
