@@ -40,7 +40,7 @@ def call_watsonx(prompt: str) -> str:
     }
 
     payload = {
-        "model_id": "llama-guard-3-11b-vision",
+        "model_id": "llama-3-2-11b-vision-instruct",
         "project_id": PROJECT_ID,
         "input": prompt,
         "parameters": {
