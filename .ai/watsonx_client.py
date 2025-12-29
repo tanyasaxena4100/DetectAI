@@ -27,6 +27,8 @@ def get_iam_token() -> str:
 
 
 def call_watsonx(prompt: str) -> str:
+    if not prompt or not prompt.strip():
+        raise ValueError("Watsonx prompt must not be empty")
     access_token = get_iam_token()
 
     # url = f"https://{REGION}.ml.cloud.ibm.com/ml/v1/text/chat?version=2024-03-01"
@@ -40,18 +42,9 @@ def call_watsonx(prompt: str) -> str:
     payload = {
         "model_id": "llama-guard-3-11b-vision",
         "project_id": PROJECT_ID,
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are an AI PR reviewer enforcing repository policy."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
+        "input": prompt,
         "parameters": {
-            "max_new_tokens": 500,
+            "max_new_tokens": 200,
             "temperature": 0.2
         }
     }
