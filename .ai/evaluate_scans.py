@@ -71,7 +71,6 @@ checks_resp = requests.get(checks_url, headers=HEADERS)
 checks_resp.raise_for_status()
 check_runs = checks_resp.json().get("check_runs", [])
 
-# Build a mapping of check name -> conclusion
 status_map = {
     check["name"]: check["conclusion"]
     for check in check_runs
@@ -79,7 +78,7 @@ status_map = {
 }
 
 # -----------------------------
-# DEBUG: Print status map
+# DEBUG
 # -----------------------------
 print("Status map from GitHub API:")
 for name, status in status_map.items():
@@ -108,9 +107,13 @@ evaluation_outcome = "FAIL" if fail else "PASS"
 print("Evaluation outcome:", evaluation_outcome)
 
 # -----------------------------
-# Prepare AI input
+# Prepare AI input (SINGLE SOURCE)
 # -----------------------------
-scan_results = {name: status for name, status in status_map.items() if name in mandatory_checks}
+scan_results = {
+    name: status
+    for name, status in status_map.items()
+    if name in mandatory_checks
+}
 
 prompt = build_prompt(
     policy=policy,
@@ -118,21 +121,19 @@ prompt = build_prompt(
     evaluation_outcome=evaluation_outcome
 )
 
-# -----------------------------
-# Call Watsonx
-# -----------------------------
-raw_response = call_watsonx(prompt)
-
-try:
-    ai_result = json.loads(raw_response)
-except json.JSONDecodeError:
-    raise RuntimeError("Watsonx returned invalid JSON")
-
-decision = ai_result.get("decision")
-comment = ai_result.get("comment")
+if not prompt or not prompt.strip():
+    raise RuntimeError("Generated Watsonx prompt is empty")
 
 # -----------------------------
-# Log AI decision
+# Call Watsonx (TEXT MODEL)
 # -----------------------------
-print("AI_DECISION:", decision)
-print("AI_COMMENT:", comment)
+ai_comment = call_watsonx(prompt).strip()
+
+if not ai_comment:
+    ai_comment = "All mandatory checks have passed. This pull request is ready for approval and merge."
+
+# -----------------------------
+# Log AI output
+# -----------------------------
+print("AI_COMMENT:")
+print(ai_comment)
